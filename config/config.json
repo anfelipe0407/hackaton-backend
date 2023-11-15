@@ -2,7 +2,7 @@
   "development": {
     "username": "root",
     "password": null,
-    "database": "nueva-plataforma-backend",
+    "database": "hackaton",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "timezone": "-05:00"

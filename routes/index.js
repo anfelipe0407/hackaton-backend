@@ -38,109 +38,38 @@ router.post("/register", async (req, res) => {
   });
 
   if (dataCheck.length > 0) {
-    res.send({
-      messageError: "No pueden existir dos usuario con la misma num_documento",
+    res.status(400).send({
+      error: "Usuario con ese numero de identificacion ya existe",
     });
-    return;
-  }
+  } else if (dataCheck.length == 0) {
+    const new_usuario = await UsuarioModel.create(data);
 
-  let ERROR = "";
-  if (data?.num_documento.toString().length > 10) {
-    ERROR += "La num_documento no puede tener más de 10 dígitos";
-  }
-
-  if (!validateEmail(data?.correo)) {
-    ERROR += "El correo es invalido";
-  }
-
-  data.usuario = `${data?.nombre.charAt(0)}${data?.p_apellido}${Math.floor(
-    Math.random() * (9999 - 1000) + 1000
-  )}`;
-
-  const salt = bcrypt.genSaltSync(10); // data random para añadir seguridad
-  const clave_sin_encriptar = Math.floor(
-    Math.random() * (999999 - 100000) + 100000
-  ).toString();
-
-  data.clave = bcrypt.hashSync(clave_sin_encriptar, salt);
-  data.clave_sin_encriptar = clave_sin_encriptar;
-
-  try {
-    if (ERROR.length > 0) {
-      res.send({
-        messageError: ERROR,
-      });
-    } else {
-      const new_user = await UsuarioModel.create(data);
-      res.status(200).send({ new_user, clave_sin_encriptar });
-    }
-  } catch (err) {
-    res.send({ messageError: err.message });
+    res.status(200).send({
+      message: "Registro creado correctamente",
+      new_usuario,
+    });
   }
 });
 
 router.post("/login", async (req, res) => {
-  const data = req.body; //usuario, clave, id_rol
+  const data = req.body;
 
-  // res.status(200).send(data);
-
-  const [user, _] = await UsuarioModel.findAll({
+  const data_check = await UsuarioModel.findAll({
     where: {
-      usuario: data.usuario,
+      usuario: data?.usuario,
+      clave: data?.clave,
+      tipo: data?.tipo,
     },
   });
 
-  const [rol, __] = await RolesUsuarioModel.findAll({
-    where: {
-      id: data.id_rol,
-    },
-  });
-
-  // res.status(200).send({ user, rol });
-
-  // * USUARIO NO EXISTE
-  if (!user || !data.clave || !rol) {
+  if (data_check.length > 0) {
     res.status(200).send({
-      login: false,
-      message: "Usuario o contraseña incorrectos",
+      message: "Inicio sesion correcto",
+      login: data_check,
     });
-
-    return;
-  }
-
-  const rol_usuario_asoc = await RolesUsuarioModel.findAll({
-    where: {
-      [Op.and]: [{ id_rol: data.id_rol }, { id_usuario: user.id }],
-    },
-  });
-
-  // res.status(200).send(rol_usuario_asoc);
-
-  // * EL usuario no tiene el rol que se envio
-  if (rol_usuario_asoc.length === 0) {
-    res.status(200).send({
-      login: false,
-      message: "El usuario no cuenta con el rol indicado",
-    });
-
-    return;
-  }
-
-  let resultado = false;
-  if (user && rol_usuario_asoc.length === 1) {
-    resultado = bcrypt.compareSync(data.clave, user?.clave);
-  }
-
-  if (resultado) {
-    res.status(200).send({
-      id_usuario: user.id,
-      login: true,
-    });
-    return;
   } else {
-    res.status(200).send({
-      login: false,
-      message: "Usuario o contraseña incorrectos",
+    res.status(400).send({
+      error: "Inicio de sesion incorrecto",
     });
   }
 });
