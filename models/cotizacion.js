@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
   Cotizacion.init(
     {
       id_cliente: DataTypes.INTEGER,
-      id_asesor: DataTypes.INTEGER,
       fecha: DataTypes.DATE,
       descuento: DataTypes.INTEGER,
       estado: DataTypes.STRING,

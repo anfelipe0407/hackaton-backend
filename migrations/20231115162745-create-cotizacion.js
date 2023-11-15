@@ -16,14 +16,6 @@ module.exports = {
           key: "id",
         },
       },
-      id_asesor: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Usuarios",
-          key: "id",
-        },
-      },
       fecha: {
         type: Sequelize.DATE,
       },

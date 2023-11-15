@@ -21,6 +21,8 @@ const {
   validateEmail,
 } = require("../helperFunctions/validationHelperFunctions");
 
+const ClienteModel = MODELS.Cliente;
+
 router.post("/", (req, res) => {
   res.status(200).send({
     message: "Conected to the server",
@@ -62,13 +64,24 @@ router.post("/login", async (req, res) => {
     },
   });
 
+  const cliente = await ClienteModel.findAll({
+    where: {
+      id_usuario: data_check[0]?.id,
+    },
+  });
+
+  // res.status(200).send({
+  //   data,
+  // });
+
   if (data_check.length > 0) {
     res.status(200).send({
       message: "Inicio sesion correcto",
-      login: data_check,
+      login: data_check[0],
+      cliente_id: cliente[0]?.id,
     });
   } else {
-    res.status(400).send({
+    res.status(200).send({
       error: "Inicio de sesion incorrecto",
     });
   }

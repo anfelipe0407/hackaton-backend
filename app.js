@@ -8,6 +8,7 @@ var logger = require("morgan");
 
 // Routers
 var indexRouter = require("./routes/index");
+var adminRouter = require("./routes/adminRouter");
 
 // Middlewares
 const { hasValidToken } = require("./middlewares/AuthenticationMiddleware");
@@ -29,5 +30,6 @@ app.set("port", port);
 app.listen(port, () => console.log("Server listening on port 8000"));
 
 app.use("/", indexRouter);
+app.use("/admin", adminRouter);
 
 module.exports = app;
